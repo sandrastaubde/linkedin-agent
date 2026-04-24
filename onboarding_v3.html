@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LinkedIn Agent Setup</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #e8dcc8 0%, #d4c4ab 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #2c2c2c;
+        }
+        
+        .container { max-width: 650px; width: 100%; }
+        
+        .progress-bar {
+            background: rgba(92, 75, 60, 0.15);
+            height: 2px;
+            border-radius: 2px;
+            margin-bottom: 50px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #8b7355 0%, #c9a961 100%);
+            height: 100%;
+            transition: width 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        
+        .card {
+            background: #faf8f5;
+            border-radius: 2px;
+            padding: 60px 50px;
+            box-shadow: 0 8px 30px rgba(44, 44, 44, 0.08);
+            border: 1px solid rgba(139, 115, 85, 0.1);
+            display: none;
+            animation: fadeIn 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        
+        .card.active { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .question {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2em;
+            color: #2c2c2c;
+            margin-bottom: 12px;
+            font-weight: 500;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+        
+        .subtitle {
+            color: #6b5d52;
+            margin-bottom: 40px;
+            font-size: 0.95em;
+            font-weight: 300;
+            letter-spacing: 0.02em;
+        }
+        
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 18px 0;
+            font-size: 1.05em;
+            border: none;
+            border-bottom: 1px solid #d4c4ab;
+            background: transparent;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+            color: #2c2c2c;
+        }
+        
+        input::placeholder, textarea::placeholder {
+            color: #a89885;
+            font-weight: 300;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-bottom-color: #8b7355;
+        }
+        
+        textarea {
+            min-height: 180px;
+            resize: vertical;
+            border: 1px solid #d4c4ab;
+            padding: 18px;
+            border-radius: 2px;
+        }
+        
+        textarea:focus { border-color: #8b7355; }
+        
+        .options {
+            display: grid;
+            gap: 16px;
+            margin-top: 30px;
+        }
+        
+        .option {
+            padding: 24px 28px;
+            border: 1px solid #d4c4ab;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: transparent;
+        }
+        
+        .option:hover {
+            border-color: #8b7355;
+            background: rgba(139, 115, 85, 0.03);
+        }
+        
+        .option.selected {
+            border-color: #8b7355;
+            background: rgba(139, 115, 85, 0.06);
+            box-shadow: inset 0 0 0 1px #8b7355;
+        }
+        
+        .option-title {
+            font-weight: 400;
+            color: #2c2c2c;
+            margin-bottom: 6px;
+            font-size: 1.05em;
+        }
+        
+        .option-desc {
+            color: #6b5d52;
+            font-size: 0.9em;
+            font-weight: 300;
+        }
+        
+        .buttons {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 12px;
+            margin-top: 40px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #2d4a3e 0%, #1e3329 100%);
+            color: #faf8f5;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 2px;
+            font-size: 0.95em;
+            font-weight: 400;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(45, 74, 62, 0.25);
+        }
+        
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-back {
+            background: transparent;
+            border: 1px solid #d4c4ab;
+            color: #6b5d52;
+            padding: 18px 30px;
+        }
+        
+        .btn-back:hover {
+            border-color: #8b7355;
+            background: rgba(139, 115, 85, 0.05);
+            box-shadow: none;
+        }
+        
+        .accent { color: #c9a961; font-weight: 400; }
+        
+        .step-indicator {
+            color: #5c4b3c;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 0.85em;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+        
+        .divider {
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #c9a961, transparent);
+            margin: 30px auto;
+        }
+        
+        .file-upload {
+            border: 2px dashed #d4c4ab;
+            border-radius: 2px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 20px 0;
+        }
+        
+        .file-upload:hover {
+            border-color: #8b7355;
+            background: rgba(139, 115, 85, 0.03);
+        }
+        
+        .file-upload.has-files {
+            border-color: #8b7355;
+            background: rgba(139, 115, 85, 0.06);
+        }
+        
+        input[type="file"] { display: none; }
+        
+        .file-list {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #6b5d52;
+        }
+        
+        .skip-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .skip-link a {
+            color: #8b7355;
+            text-decoration: none;
+            font-size: 0.9em;
+            letter-spacing: 0.05em;
+        }
+        
+        .skip-link a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 600px) {
+            .card { padding: 40px 30px; }
+            .question { font-size: 1.8em; }
+            .btn { padding: 16px 30px; }
+            .btn-back { padding: 16px 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="step-indicator">Schritt <span id="currentStep">1</span> von 16</div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 6.25%"></div>
+        </div>
+        
+        <!-- Schritt 1: Name -->
+        <div class="card active" data-step="1">
+            <div class="question">Wie dürfen wir Sie nennen?</div>
+            <div class="subtitle">Ihr Name</div>
+            <input type="text" id="name" placeholder="Sandra Schmidt" autofocus>
+            <div class="buttons">
+                <button class="btn" onclick="saveAndNext(1)">Weiter</button>
+            </div>
+        </div>
+        
+        <!-- Schritt 2: Rolle -->
+        <div class="card" data-step="2">
+            <div class="question">Was ist Ihre Profession?</div>
+            <div class="subtitle">Ihre berufliche Rolle</div>
+            <input type="text" id="role" placeholder="Gründerin & Social Media Strategin">
+            <div class="buttons">
+                <button class="btn-back btn" onclick="goBack()">Zurück</button>
+                <button class="btn" onclick="saveAndNext(2)">Weiter</button>
+            </div>
+        </div>
+        
+        <!-- Schritt 3: Branche -->
+        <div class="card" data-step="3">
+            <div class="question">In welchem Bereich sind Sie tätig?</div>
+            <div class="subtitle">Ihre Branche</div>
+            <div class="options">
+                <div class="option" onclick="selectOption(this, 'marketing')">
+                    <div class="option-title">Marketing & Kommunikation</div>
+                    <div class="option-desc">Social Media, Content, Kampagnen</div>
+                </div>
+                <div class="option" onclick="selectOption(this, 'beratung')">
+                    <div class="option-title">Beratung & Coaching</div>
+                    <div class="option-desc">Business, Career, Persönlichkeitsentwicklung</div>
+                </div>
+                <div class="option" onclick="selectOption(this, 'tech')">
+                    <div class="option-title">Technologie & Innovation</div>
+                    <div class="option-desc">IT, Software, Digital Business</div>
+                </div>
+                <div class="option" onclick="selectOption(this, 'other')">
+                    <div class="option-title">Andere Branche</div>
+                    <div class="option-desc">Eigene Branche angeben</div>
+                </div>
+            </div>
+            <input type="text" id="industry_custom" placeholder="Ihre Branche" style="display:none; margin-top: 20px;">
+            <div class="buttons">
+                <button class="btn-back btn" onclick="goBack()">Zurück</button>
+                <button class="btn" onclick="saveAndNext(3)" id="btn3" disabled>Weiter</button>
+            </div>
+        </div>
+        
+        <!-- Schritt 4: Zielgruppe -->
+        <div class="card" data-step="4">
+            <div class="question">Wen möchten Sie erreichen?</div>
+            <div class="subtitle">Ihre Zielgruppe auf LinkedIn</div>
+            <textarea id="target_audience" placeholder="Beschreiben Sie Ihre idealen Klienten, Kunden oder Partner..."></textarea>
+            <div class="buttons">
+                <button class="btn-back btn" onclick="goBack()">Zurück</button>
+                <button class="btn" onclick="saveAndNext(4)">Weiter</button>
+            </div>
+        </div>
+        
+        <!-- Schritt 5: Positionierung -->
+        <div class="card" data-step="5">
+            <div class="question">Was macht Sie <span class="accent">einzigartig</span>?</div>
+            <div class="subtitle">Ihre Positionierung</div>
+            <textarea id="positioning" placeholder="Was unterscheidet Sie von anderen in Ihrem Bereich?"></textarea>
+            <div class="buttons">
+                <button class="btn-back btn" onclick="goBack()">Zurück</button>
+                <button class="btn" onclick="saveAndNext(5)">Weiter</button>
+            </div>
+        </div>
+        
+        <!-- Schritt 6: Website & Social -->
+        <div class="card" data-step="6">
+            <div class="question">Ihre Online-Präsenz</div>
+            <div class="subtitle">Website & Social Media (optional)</div>
+            <input type="text" id="website" placeholder="Website (z.B. www.ihre-website.de)" style="margin-bottom: 15px;">
+            <input type="text" id="linkedin_url" placeholder="LinkedIn Profil-URL" style="margin-bottom: 15px;">
+            <input type="text" id="instagram" placeholder="Instagram Handle (ohne @)" style="margin-bottom: 15px;">
+            <input type="text" id="twitter" placeholder="Twitter/X Handle (ohne @)" style="margin-bottom: 15px;">
+            <textarea id="other_networks" placeholder="Andere Kanäle (YouTube, TikTok, Newsletter...)" style="min-height: 100px;"></textarea>
+            <div class="buttons">
+                <button class="btn-back btn" onclick="goBack()">Zurück</button>
+                <button class="btn" onclick="saveAndNext(6)">Weiter</button>
+            </div>
+        </div>
+        
+        <!-- Schritt 7-9: 3 Hauptthemen -->
+        <div class="card" data-step="7">
+            <div class="question">Ihr erstes Kernthema</div>
+            <div class="subtitle">Thema 1 von 3</div>
+            <div class="divider"></div>
+            <input type="text" id="topic_1" placeholder="z.B. KI & Automation">
+            <div class="buttons">
+                <button class="btn-back btn" onclick="goBack()">Zurück</button>
+                <button class="btn" onclick="saveAndNext(7)">Weiter</button>
+            </div>
+        </div>
+        
+        <div class="card" data-step="8">
+            <div class="question">Ihr zweites Kernthema</div>
+            <div class="subtitle">Thema 2 von 3</div>
+            <div class="divider"></div>
+            <input type="text" id="topic_2" placeholder="z.B. Social Media Strategie">
+            <div class="buttons">
+                <button class="btn-back btn" onclick="goBack()">Zurück</button>
+                <button class="btn" onclick="saveAndNext(8)">Weiter</button>
+            </div>
+        </div>
+        
+        <div class="card" data-step="9">
+            <div class="question">Ihr drittes Kernthema</div>
+            <div class="subtitle">Thema 3 von 3</div>
+            <div class="divider"></div>
+            <input type="text" id="topic_3" placeholder="z.B. Unternehmertum">
+            <div class="buttons">
+                <button class="btn-back btn" onclick="goBack()">Zurück</button>
+                <button class="btn" onclick="saveAndNext(9)">Weiter</button>
+            </div>
+        </div>
+        
+        <!-- Schritt 10-14: Schreibproben einzeln -->
+        <div class="card" data-step="10">
+            <div class="question">Ihr bester LinkedIn Post</div>
+            <div class="subtitle">Post 1 von 5</div>
+            <div class="divider"></div>
+            <textarea id="post_1" placeholder="Kopieren Sie hier Ihren ersten LinkedIn Post ein..."></textarea>
+            <div class="buttons">
+                <button class="btn-back btn" onclick="goBack()">Zurück</button>
+                <button class="btn" onclick="saveAndNext(10)">Weiter</button>
+            </div>
+        </div>
+        
+        <div class="card" data-step="11">
+            <div class="question">Post Nummer zwei</div>
+            <div class="subtitle">Post 2 von 5</div>
+            <div class="divider"></div>
+            <textarea id="post_2" placeholder="Ihr zweiter Post..."></textarea>
+            <div class="buttons">
+                <button class="btn-back btn" onclick="goBack()">Zurück</button>
+                <button class="btn" onclick="saveAndNext(11)">Weiter</button>
+            </div>
+        </div>
+        
+        <div class="card" data-step="12">
+            <div class="question">Noch einer</div>
+            <div class="subtitle">Post 3 von 5</div>
+            <div class="divider"></div>
+            <textarea id="post_3" placeholder="Dritter Post..."></textarea>
+            <div class="buttons">
+                <button class="btn-back btn" onclick="goBack()">Zurück</button>
+                <button class="btn" onclick="saveAndNext(12)">Weiter</button>
+            </div>
+            <div class="skip-link">
+                <a href="#" onclick="skipRemaining(); return false;">Ich habe nur 3 Posts (überspringen)</a>
+            </div>
+        </div>
+        
+        <div class="card" data-step="13">
+            <div class="question">Fast geschafft</div>
+            <div class="subtitle">Post 4 von 5 (optional)</div>
+            <div class="divider"></div>
+            <textarea id="post_4" placeholder="Vierter Post..."></textarea>
+            <div class="buttons">
+                <button class="btn-back btn" onclick="goBack()">Zurück</button>
+                <button class="btn" onclick="saveAndNext(13)">Weiter</button>
+            </div>
+            <div class="skip-link">
+                <a href="#" onclick="skipToPhotos(); return false;">Weiter ohne weitere Posts</a>
+            </div>
+        </div>
+        
+        <div class="card" data-step="14">
+            <div class="question">Der letzte Post</div>
+            <div class="subtitle">Post 5 von 5 (optional)</div>
+            <div class="divider"></div>
+            <textarea id="post_5" placeholder="Fünfter Post..."></textarea>
+            <div class="buttons">
+                <button class="btn-back btn" onclick="goBack()">Zurück</button>
+                <button class="btn" onclick="saveAndNext(14)">Weiter</button>
+            </div>
+        </div>
+        
+        <!-- Schritt 15: Foto-Upload -->
+        <div class="card" data-step="15">
+            <div class="question">Ihre Fotos für <span class="accent">KI-Bilder</span></div>
+            <div class="subtitle">Min. 5 Porträtfotos von Ihnen · PFLICHT für personalisierte LinkedIn-Bilder</div>
+            
+            <div class="file-upload" id="photoUpload" onclick="document.getElementById('photoInput').click()">
+                <div style="font-size: 2em; margin-bottom: 10px;">📸</div>
+                <div style="color: #2c2c2c; font-weight: 400; margin-bottom: 8px;">Fotos auswählen</div>
+                <div style="color: #6b5d52; font-size: 0.9em;">Mindestens 5 Porträtfotos (JPG, PNG)</div>
+                <div class="file-list" id="fileList"></div>
+            </div>
+            <input type="file" id="photoInput" accept="image/*" multiple onchange="handleFiles(this.files)">
+            
+            <div style="margin-top: 20px; padding: 20px; background: rgba(139, 115, 85, 0.05); border-radius: 2px; font-size: 0.9em; color: #6b5d52;">
+                <strong>Warum 5 Fotos?</strong> Verschiedene Outfits, Settings und Perspektiven helfen der KI, authentischere und vielfältigere LinkedIn-Bilder für Sie zu erstellen. Am besten: klarer Hintergrund, gute Beleuchtung, direkter Blick.
+            </div>
+            
+            <div class="buttons">
+                <button class="btn-back btn" onclick="goBack()">Zurück</button>
+                <button class="btn" onclick="saveAndNext(15)" id="btn15" disabled>Weiter</button>
+            </div>
+        </div>
+        
+        <!-- Schritt 16: Loading -->
+        <div class="card" data-step="16" style="text-align: center;">
+            <div class="question">Einen Moment...</div>
+            <div class="subtitle">Ihr Agent analysiert Ihren Schreibstil</div>
+            <div class="divider"></div>
+            <div style="margin: 50px 0;">
+                <div style="width: 50px; height: 50px; border: 1px solid #d4c4ab; border-top-color: #8b7355; border-radius: 50%; margin: 0 auto; animation: spin 1.2s linear infinite;"></div>
+            </div>
+        </div>
+        
+        <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        </style>
+    </div>
+    
+    <script>
+    let currentStep = 1;
+    let data = {};
+    let selectedIndustry = '';
+    let uploadedPhotos = [];
+    
+    // Auto-save & Resume
+    function saveToStorage() {
+        localStorage.setItem('linkedin_agent_step', currentStep);
+        localStorage.setItem('linkedin_agent_data', JSON.stringify(data));
+    }
+    
+    function loadFromStorage() {
+        const savedStep = localStorage.getItem('linkedin_agent_step');
+        const savedData = localStorage.getItem('linkedin_agent_data');
+        
+        if (savedStep && savedData) {
+            currentStep = parseInt(savedStep);
+            data = JSON.parse(savedData);
+            
+            // Restore form values
+            Object.keys(data).forEach(key => {
+                const el = document.getElementById(key);
+                if (el) el.value = data[key];
+            });
+            
+            if (currentStep > 1) {
+                if (confirm('Möchten Sie dort weitermachen wo Sie aufgehört haben?')) {
+                    showStep(currentStep);
+                }
+            }
+        }
+    }
+    
+    // Load on start
+    window.addEventListener('DOMContentLoaded', loadFromStorage);
+    
+    // Auto-save on input
+    document.querySelectorAll('input, textarea').forEach(el => {
+        el.addEventListener('input', () => {
+            data[el.id] = el.value;
+            saveToStorage();
+        });
+    });
+    
+    function selectOption(element, value) {
+        element.parentElement.querySelectorAll('.option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+        
+        element.classList.add('selected');
+        selectedIndustry = value;
+        
+        const customInput = document.getElementById('industry_custom');
+        if (value === 'other') {
+            customInput.style.display = 'block';
+            customInput.focus();
+        } else {
+            customInput.style.display = 'none';
+        }
+        
+        document.getElementById('btn3').disabled = false;
+        data.industry_selection = value;
+        saveToStorage();
+    }
+    
+    function goBack() {
+        if (currentStep > 1) {
+            currentStep--;
+            showStep(currentStep);
+            saveToStorage();
+        }
+    }
+    
+    async function saveAndNext(step) {
+        // Validate & save current step
+        if (step === 1) {
+            data.name = document.getElementById('name').value.trim();
+            if (!data.name) {
+                alert('Bitte geben Sie Ihren Namen ein.');
+                return;
+            }
+        }
+        else if (step === 2) {
+            data.role = document.getElementById('role').value.trim();
+            if (!data.role) {
+                alert('Bitte geben Sie Ihre Rolle ein.');
+                return;
+            }
+        }
+        else if (step === 3) {
+            if (selectedIndustry === 'other') {
+                data.industry = document.getElementById('industry_custom').value.trim();
+                if (!data.industry) {
+                    alert('Bitte geben Sie Ihre Branche ein.');
+                    return;
+                }
+            } else {
+                const industryMap = {
+                    'marketing': 'Marketing & Kommunikation',
+                    'beratung': 'Beratung & Coaching',
+                    'tech': 'Technologie & Innovation'
+                };
+                data.industry = industryMap[selectedIndustry];
+            }
+        }
+        else if (step === 4) {
+            data.target_audience = document.getElementById('target_audience').value.trim();
+            if (!data.target_audience) {
+                alert('Bitte beschreiben Sie Ihre Zielgruppe.');
+                return;
+            }
+        }
+        else if (step === 5) {
+            data.positioning = document.getElementById('positioning').value.trim();
+            if (!data.positioning) {
+                alert('Bitte beschreiben Sie Ihre Positionierung.');
+                return;
+            }
+        }
+        else if (step === 6) {
+            // All optional
+            data.website = document.getElementById('website').value.trim();
+            data.linkedin_url = document.getElementById('linkedin_url').value.trim();
+            data.instagram = document.getElementById('instagram').value.trim();
+            data.twitter = document.getElementById('twitter').value.trim();
+            data.other_networks = document.getElementById('other_networks').value.trim();
+        }
+        else if (step === 7) {
+            data.topic_1 = document.getElementById('topic_1').value.trim();
+            if (!data.topic_1) {
+                alert('Bitte geben Sie Ihr erstes Kernthema ein.');
+                return;
+            }
+        }
+        else if (step === 8) {
+            data.topic_2 = document.getElementById('topic_2').value.trim();
+            if (!data.topic_2) {
+                alert('Bitte geben Sie Ihr zweites Kernthema ein.');
+                return;
+            }
+        }
+        else if (step === 9) {
+            data.topic_3 = document.getElementById('topic_3').value.trim();
+            if (!data.topic_3) {
+                alert('Bitte geben Sie Ihr drittes Kernthema ein.');
+                return;
+            }
+        }
+        else if (step === 10) {
+            data.post_1 = document.getElementById('post_1').value.trim();
+            if (!data.post_1) {
+                alert('Bitte fügen Sie Ihren ersten Post ein.');
+                return;
+            }
+        }
+        else if (step === 11) {
+            data.post_2 = document.getElementById('post_2').value.trim();
+            if (!data.post_2) {
+                alert('Bitte fügen Sie Ihren zweiten Post ein.');
+                return;
+            }
+        }
+        else if (step === 12) {
+            data.post_3 = document.getElementById('post_3').value.trim();
+            if (!data.post_3) {
+                alert('Bitte fügen Sie Ihren dritten Post ein.');
+                return;
+            }
+        }
+        else if (step === 13) {
+            data.post_4 = document.getElementById('post_4').value.trim();
+        }
+        else if (step === 14) {
+            data.post_5 = document.getElementById('post_5').value.trim();
+        }
+        else if (step === 15) {
+            // Photos optional but save
+            data.photo_count = uploadedPhotos.length;
+        }
+        
+        // Save to backend
+        await fetch('/onboarding/save_step', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({step, data})
+        });
+        
+        // Next step
+        currentStep = step + 1;
+        showStep(currentStep);
+        saveToStorage();
+        
+        // If on last step (15), submit
+        if (step === 15) {
+            finish();
+        }
+    }
+    
+    function showStep(step) {
+        document.querySelectorAll('.card').forEach(card => {
+            card.classList.remove('active');
+        });
+        
+        document.querySelector(`[data-step="${step}"]`).classList.add('active');
+        
+        const progress = (step / 16) * 100;
+        document.getElementById('progressFill').style.width = progress + '%';
+        document.getElementById('currentStep').textContent = step;
+        
+        setTimeout(() => {
+            const input = document.querySelector(`[data-step="${step}"] input, [data-step="${step}"] textarea`);
+            if (input && input.type !== 'file') input.focus();
+        }, 150);
+    }
+    
+    function skipRemaining() {
+        currentStep = 15; // Skip to photos
+        showStep(currentStep);
+        saveToStorage();
+    }
+    
+    function skipToPhotos() {
+        currentStep = 15;
+        showStep(currentStep);
+        saveToStorage();
+    }
+    
+    function skipPhotos() {
+        finish();
+    }
+    
+    function handleFiles(files) {
+        uploadedPhotos = Array.from(files);
+        
+        const upload = document.getElementById('photoUpload');
+        const list = document.getElementById('fileList');
+        const btn = document.getElementById('btn15');
+        
+        if (files.length >= 5) {
+            upload.classList.add('has-files');
+            list.innerHTML = `<div style="margin-top: 15px; color: #8b7355;">✓ ${files.length} Foto${files.length > 1 ? 's' : ''} ausgewählt</div>`;
+            btn.disabled = false;
+        } else {
+            upload.classList.remove('has-files');
+            list.innerHTML = `<div style="margin-top: 15px; color: #c9594d;">${files.length} Foto${files.length > 1 ? 's' : ''} - Mindestens 5 benötigt</div>`;
+            btn.disabled = true;
+        }
+    }
+    
+    function skipPhotos() {
+        alert('Mindestens 5 Fotos sind erforderlich für personalisierte KI-Bilder.');
+    }
+    
+    async function finish() {
+        showStep(16);
+        
+        // Combine posts
+        const posts = [
+            data.post_1,
+            data.post_2,
+            data.post_3,
+            data.post_4,
+            data.post_5
+        ].filter(p => p && p.trim());
+        
+        const formData = new FormData();
+        Object.keys(data).forEach(key => {
+            if (!key.startsWith('post_')) {
+                formData.append(key, data[key] || '');
+            }
+        });
+        
+        formData.append('writing_samples', posts.join('\n\n'));
+        
+        // Upload photos if any
+        uploadedPhotos.forEach((file, i) => {
+            formData.append(`photo_${i}`, file);
+        });
+        
+        try {
+            const res = await fetch('/onboarding/submit', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await res.json();
+            
+            if (result.success) {
+                // Clear storage
+                localStorage.removeItem('linkedin_agent_step');
+                localStorage.removeItem('linkedin_agent_data');
+                
+                window.location.href = result.redirect;
+            } else {
+                alert('Ein Fehler ist aufgetreten: ' + result.error);
+                showStep(15);
+            }
+        } catch (err) {
+            alert('Ein Fehler ist aufgetreten: ' + err.message);
+            showStep(15);
+        }
+    }
+    
+    // Enter key (nur wenn nicht in textarea)
+    document.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            const activeCard = document.querySelector('.card.active');
+            const textarea = activeCard.querySelector('textarea');
+            
+            if (textarea && document.activeElement === textarea) {
+                return;
+            }
+            
+            const btn = activeCard.querySelector('.btn:not(.btn-back)');
+            if (btn && !btn.disabled) {
+                btn.click();
+            }
+        }
+    });
+    </script>
+</body>
+</html>
