@@ -1,90 +1,525 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>LinkedIn Agent - Setup</title>
+    <title>LinkedIn Agent Setup</title>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        body { font-family: system-ui; max-width: 700px; margin: 50px auto; padding: 20px; }
-        h1 { color: #0a66c2; }
-        .form-group { margin: 20px 0; }
-        label { display: block; font-weight: 600; margin-bottom: 5px; }
-        input, textarea { width: 100%; padding: 10px; font-size: 1em; border: 2px solid #ddd; border-radius: 6px; }
-        textarea { min-height: 150px; font-family: monospace; }
-        button { background: #0a66c2; color: white; padding: 15px 30px; border: none; border-radius: 6px; font-size: 1.1em; cursor: pointer; }
-        button:hover { background: #004182; }
-        .helper { font-size: 0.9em; color: #666; margin-top: 5px; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #e8dcc8 0%, #d4c4ab 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #2c2c2c;
+        }
+        
+        .container {
+            max-width: 650px;
+            width: 100%;
+        }
+        
+        .progress-bar {
+            background: rgba(92, 75, 60, 0.15);
+            height: 2px;
+            border-radius: 2px;
+            margin-bottom: 50px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #8b7355 0%, #c9a961 100%);
+            height: 100%;
+            transition: width 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        
+        .card {
+            background: #faf8f5;
+            border-radius: 2px;
+            padding: 60px 50px;
+            box-shadow: 0 8px 30px rgba(44, 44, 44, 0.08);
+            border: 1px solid rgba(139, 115, 85, 0.1);
+            display: none;
+            animation: fadeIn 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        
+        .card.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .question {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2em;
+            color: #2c2c2c;
+            margin-bottom: 12px;
+            font-weight: 500;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+        
+        .subtitle {
+            color: #6b5d52;
+            margin-bottom: 40px;
+            font-size: 0.95em;
+            font-weight: 300;
+            letter-spacing: 0.02em;
+        }
+        
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 18px 0;
+            font-size: 1.05em;
+            border: none;
+            border-bottom: 1px solid #d4c4ab;
+            background: transparent;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+            color: #2c2c2c;
+        }
+        
+        input::placeholder,
+        textarea::placeholder {
+            color: #a89885;
+            font-weight: 300;
+        }
+        
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-bottom-color: #8b7355;
+        }
+        
+        textarea {
+            min-height: 140px;
+            resize: vertical;
+            border: 1px solid #d4c4ab;
+            padding: 18px;
+            border-radius: 2px;
+        }
+        
+        textarea:focus {
+            border-color: #8b7355;
+        }
+        
+        .options {
+            display: grid;
+            gap: 16px;
+            margin-top: 30px;
+        }
+        
+        .option {
+            padding: 24px 28px;
+            border: 1px solid #d4c4ab;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: transparent;
+        }
+        
+        .option:hover {
+            border-color: #8b7355;
+            background: rgba(139, 115, 85, 0.03);
+        }
+        
+        .option.selected {
+            border-color: #8b7355;
+            background: rgba(139, 115, 85, 0.06);
+            box-shadow: inset 0 0 0 1px #8b7355;
+        }
+        
+        .option-title {
+            font-weight: 400;
+            color: #2c2c2c;
+            margin-bottom: 6px;
+            font-size: 1.05em;
+        }
+        
+        .option-desc {
+            color: #6b5d52;
+            font-size: 0.9em;
+            font-weight: 300;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #2d4a3e 0%, #1e3329 100%);
+            color: #faf8f5;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 2px;
+            font-size: 0.95em;
+            font-weight: 400;
+            cursor: pointer;
+            margin-top: 40px;
+            width: 100%;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(45, 74, 62, 0.25);
+        }
+        
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn:disabled:hover {
+            box-shadow: none;
+        }
+        
+        .accent {
+            color: #c9a961;
+            font-weight: 400;
+        }
+        
+        .step-indicator {
+            color: #5c4b3c;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 0.85em;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+        
+        .divider {
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #c9a961, transparent);
+            margin: 30px auto;
+        }
+        
+        @media (max-width: 600px) {
+            .card {
+                padding: 40px 30px;
+            }
+            
+            .question {
+                font-size: 1.8em;
+            }
+            
+            .btn {
+                padding: 16px 30px;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>🤖 LinkedIn Agent Setup</h1>
-    <p>Füllen Sie diese Daten aus, dann lernt der Agent Ihren Stil.</p>
-    
-    <form id="form" onsubmit="return handleSubmit(event)">
-        <div class="form-group">
-            <label>Ihr Name *</label>
-            <input name="name" required>
+    <div class="container">
+        <div class="step-indicator">Schritt <span id="currentStep">1</span> von 8</div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 12.5%"></div>
         </div>
         
-        <div class="form-group">
-            <label>Ihre Rolle *</label>
-            <input name="role" required placeholder="z.B. Social Media Agentur Gründerin">
+        <!-- Schritt 1: Name -->
+        <div class="card active" data-step="1">
+            <div class="question">Wie dürfen wir Sie nennen?</div>
+            <div class="subtitle">Ihr Name</div>
+            <input type="text" id="name" placeholder="Sandra Schmidt" autofocus>
+            <button class="btn" onclick="saveAndNext(1)">Weiter</button>
         </div>
         
-        <div class="form-group">
-            <label>Branche *</label>
-            <input name="industry" required>
+        <!-- Schritt 2: Rolle -->
+        <div class="card" data-step="2">
+            <div class="question">Was ist Ihre Profession?</div>
+            <div class="subtitle">Ihre berufliche Rolle</div>
+            <input type="text" id="role" placeholder="Gründerin & Social Media Strategin">
+            <button class="btn" onclick="saveAndNext(2)">Weiter</button>
         </div>
         
-        <div class="form-group">
-            <label>Zielgruppe *</label>
-            <textarea name="target_audience" required></textarea>
+        <!-- Schritt 3: Branche -->
+        <div class="card" data-step="3">
+            <div class="question">In welchem Bereich sind Sie tätig?</div>
+            <div class="subtitle">Ihre Branche</div>
+            <div class="options">
+                <div class="option" onclick="selectOption(this, 'marketing')">
+                    <div class="option-title">Marketing & Kommunikation</div>
+                    <div class="option-desc">Social Media, Content, Kampagnen</div>
+                </div>
+                <div class="option" onclick="selectOption(this, 'beratung')">
+                    <div class="option-title">Beratung & Coaching</div>
+                    <div class="option-desc">Business, Career, Persönlichkeitsentwicklung</div>
+                </div>
+                <div class="option" onclick="selectOption(this, 'tech')">
+                    <div class="option-title">Technologie & Innovation</div>
+                    <div class="option-desc">IT, Software, Digital Business</div>
+                </div>
+                <div class="option" onclick="selectOption(this, 'other')">
+                    <div class="option-title">Andere Branche</div>
+                    <div class="option-desc">Eigene Branche angeben</div>
+                </div>
+            </div>
+            <input type="text" id="industry_custom" placeholder="Ihre Branche" style="display:none; margin-top: 20px;">
+            <button class="btn" onclick="saveAndNext(3)" id="btn3" disabled>Weiter</button>
         </div>
         
-        <div class="form-group">
-            <label>Positionierung *</label>
-            <textarea name="positioning" required></textarea>
+        <!-- Schritt 4: Zielgruppe -->
+        <div class="card" data-step="4">
+            <div class="question">Wen möchten Sie erreichen?</div>
+            <div class="subtitle">Ihre Zielgruppe auf LinkedIn</div>
+            <textarea id="target_audience" placeholder="Beschreiben Sie Ihre idealen Klienten, Kunden oder Partner..."></textarea>
+            <button class="btn" onclick="saveAndNext(4)">Weiter</button>
         </div>
         
-        <h2>Ihre 3 Hauptthemen (LinkedIn Max)</h2>
-        
-        <div class="form-group">
-            <label>Thema 1 *</label>
-            <input name="topic_1" required>
+        <!-- Schritt 5: Positionierung -->
+        <div class="card" data-step="5">
+            <div class="question">Was macht Sie <span class="accent">einzigartig</span>?</div>
+            <div class="subtitle">Ihre Positionierung</div>
+            <textarea id="positioning" placeholder="Was unterscheidet Sie von anderen in Ihrem Bereich?"></textarea>
+            <button class="btn" onclick="saveAndNext(5)">Weiter</button>
         </div>
         
-        <div class="form-group">
-            <label>Thema 2 *</label>
-            <input name="topic_2" required>
+        <!-- Schritt 6-8: 3 Hauptthemen -->
+        <div class="card" data-step="6">
+            <div class="question">Ihr erstes Kernthema</div>
+            <div class="subtitle">Thema 1 von 3</div>
+            <div class="divider"></div>
+            <input type="text" id="topic_1" placeholder="z.B. KI & Automation">
+            <button class="btn" onclick="saveAndNext(6)">Weiter</button>
         </div>
         
-        <div class="form-group">
-            <label>Thema 3 *</label>
-            <input name="topic_3" required>
+        <div class="card" data-step="7">
+            <div class="question">Ihr zweites Kernthema</div>
+            <div class="subtitle">Thema 2 von 3</div>
+            <div class="divider"></div>
+            <input type="text" id="topic_2" placeholder="z.B. Social Media Strategie">
+            <button class="btn" onclick="saveAndNext(7)">Weiter</button>
         </div>
         
-        <h2>Schreibproben (min. 3 Posts)</h2>
-        <div class="form-group">
-            <textarea name="writing_samples" placeholder="Post 1 hier
+        <div class="card" data-step="8">
+            <div class="question">Ihr drittes Kernthema</div>
+            <div class="subtitle">Thema 3 von 3</div>
+            <div class="divider"></div>
+            <input type="text" id="topic_3" placeholder="z.B. Unternehmertum">
+            <button class="btn" onclick="saveAndNext(8)">Weiter</button>
+        </div>
+        
+        <!-- Schritt 9: Schreibproben -->
+        <div class="card" data-step="9">
+            <div class="question">Ihre <span class="accent">besten</span> LinkedIn Posts</div>
+            <div class="subtitle">5-10 Posts, die Ihren Stil repräsentieren · Jeweils mit Leerzeile trennen</div>
+            <textarea id="writing_samples" placeholder="Erster Post hier...
 
-Post 2 hier
+Zweiter Post hier...
 
-Post 3 hier
-
-(Trennen Sie Posts durch Leerzeilen)" style="min-height: 300px;"></textarea>
-            <div class="helper">Kopieren Sie 5-10 Ihrer besten LinkedIn Posts hier rein</div>
+Dritter Post hier..." style="min-height: 260px;"></textarea>
+            <button class="btn" onclick="finish()">Agent aktivieren</button>
         </div>
         
-        <button type="submit">🚀 Agent starten!</button>
-    </form>
+        <!-- Loading -->
+        <div class="card" data-step="10" style="text-align: center;">
+            <div class="question">Einen Moment...</div>
+            <div class="subtitle">Ihr Agent analysiert Ihren Schreibstil</div>
+            <div class="divider"></div>
+            <div style="margin: 50px 0;">
+                <div style="width: 50px; height: 50px; border: 1px solid #d4c4ab; border-top-color: #8b7355; border-radius: 50%; margin: 0 auto; animation: spin 1.2s linear infinite;"></div>
+            </div>
+        </div>
+        
+        <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        </style>
+    </div>
     
     <script>
-    async function handleSubmit(e) {
-        e.preventDefault();
-        const btn = e.target.querySelector('button');
-        btn.disabled = true;
-        btn.textContent = '⏳ Wird eingerichtet...';
+    let currentStep = 1;
+    let data = {};
+    let selectedIndustry = '';
+    
+    // Auto-save nach jedem Input
+    document.querySelectorAll('input, textarea').forEach(el => {
+        el.addEventListener('input', () => {
+            localStorage.setItem('onboarding_' + el.id, el.value);
+        });
         
-        const formData = new FormData(e.target);
+        // Load from localStorage
+        const saved = localStorage.getItem('onboarding_' + el.id);
+        if (saved) el.value = saved;
+    });
+    
+    function selectOption(element, value) {
+        // Deselect all
+        element.parentElement.querySelectorAll('.option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+        
+        // Select this
+        element.classList.add('selected');
+        selectedIndustry = value;
+        
+        // Show custom input if "other"
+        const customInput = document.getElementById('industry_custom');
+        if (value === 'other') {
+            customInput.style.display = 'block';
+            customInput.focus();
+        } else {
+            customInput.style.display = 'none';
+        }
+        
+        // Enable button
+        document.getElementById('btn3').disabled = false;
+        
+        // Auto-save
+        localStorage.setItem('onboarding_industry', value);
+    }
+    
+    async function saveAndNext(step) {
+        // Save current step data
+        if (step === 1) {
+            data.name = document.getElementById('name').value.trim();
+            if (!data.name) {
+                alert('Bitte geben Sie Ihren Namen ein.');
+                return;
+            }
+        }
+        else if (step === 2) {
+            data.role = document.getElementById('role').value.trim();
+            if (!data.role) {
+                alert('Bitte geben Sie Ihre Rolle ein.');
+                return;
+            }
+        }
+        else if (step === 3) {
+            if (selectedIndustry === 'other') {
+                data.industry = document.getElementById('industry_custom').value.trim();
+                if (!data.industry) {
+                    alert('Bitte geben Sie Ihre Branche ein.');
+                    return;
+                }
+            } else {
+                const industryMap = {
+                    'marketing': 'Marketing & Kommunikation',
+                    'beratung': 'Beratung & Coaching',
+                    'tech': 'Technologie & Innovation'
+                };
+                data.industry = industryMap[selectedIndustry];
+            }
+        }
+        else if (step === 4) {
+            data.target_audience = document.getElementById('target_audience').value.trim();
+            if (!data.target_audience) {
+                alert('Bitte beschreiben Sie Ihre Zielgruppe.');
+                return;
+            }
+        }
+        else if (step === 5) {
+            data.positioning = document.getElementById('positioning').value.trim();
+            if (!data.positioning) {
+                alert('Bitte beschreiben Sie Ihre Positionierung.');
+                return;
+            }
+        }
+        else if (step === 6) {
+            data.topic_1 = document.getElementById('topic_1').value.trim();
+            if (!data.topic_1) {
+                alert('Bitte geben Sie Ihr erstes Kernthema ein.');
+                return;
+            }
+        }
+        else if (step === 7) {
+            data.topic_2 = document.getElementById('topic_2').value.trim();
+            if (!data.topic_2) {
+                alert('Bitte geben Sie Ihr zweites Kernthema ein.');
+                return;
+            }
+        }
+        else if (step === 8) {
+            data.topic_3 = document.getElementById('topic_3').value.trim();
+            if (!data.topic_3) {
+                alert('Bitte geben Sie Ihr drittes Kernthema ein.');
+                return;
+            }
+        }
+        
+        // Save to backend
+        await fetch('/onboarding/save_step', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({step, data})
+        });
+        
+        // Next step
+        currentStep = step + 1;
+        showStep(currentStep);
+    }
+    
+    function showStep(step) {
+        document.querySelectorAll('.card').forEach(card => {
+            card.classList.remove('active');
+        });
+        
+        document.querySelector(`[data-step="${step}"]`).classList.add('active');
+        
+        // Update progress
+        const progress = (step / 9) * 100;
+        document.getElementById('progressFill').style.width = progress + '%';
+        document.getElementById('currentStep').textContent = step;
+        
+        // Focus first input
+        setTimeout(() => {
+            const input = document.querySelector(`[data-step="${step}"] input, [data-step="${step}"] textarea`);
+            if (input) input.focus();
+        }, 150);
+    }
+    
+    async function finish() {
+        data.writing_samples = document.getElementById('writing_samples').value.trim();
+        
+        if (!data.writing_samples) {
+            alert('Bitte fügen Sie mindestens 3 LinkedIn Posts ein – so lernt der Agent Ihren Stil kennen.');
+            return;
+        }
+        
+        // Show loading
+        showStep(10);
+        
+        // Submit all
+        const formData = new FormData();
+        Object.keys(data).forEach(key => {
+            formData.append(key, data[key]);
+        });
         
         try {
             const res = await fetch('/onboarding/submit', {
@@ -92,22 +527,44 @@ Post 3 hier
                 body: formData
             });
             
-            const data = await res.json();
+            const result = await res.json();
             
-            if (data.success) {
-                alert('✅ Setup erfolgreich!');
-                window.location.href = data.redirect;
+            if (result.success) {
+                // Clear localStorage
+                Object.keys(localStorage).forEach(key => {
+                    if (key.startsWith('onboarding_')) {
+                        localStorage.removeItem(key);
+                    }
+                });
+                
+                window.location.href = result.redirect;
             } else {
-                alert('❌ Fehler: ' + data.error);
-                btn.disabled = false;
-                btn.textContent = '🚀 Agent starten!';
+                alert('Ein Fehler ist aufgetreten: ' + result.error);
+                showStep(9);
             }
         } catch (err) {
-            alert('❌ Fehler: ' + err.message);
-            btn.disabled = false;
-            btn.textContent = '🚀 Agent starten!';
+            alert('Ein Fehler ist aufgetreten: ' + err.message);
+            showStep(9);
         }
     }
+    
+    // Enter key navigation
+    document.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            const activeCard = document.querySelector('.card.active');
+            const textarea = activeCard.querySelector('textarea');
+            
+            // Ignore Enter in textarea
+            if (textarea && document.activeElement === textarea) {
+                return;
+            }
+            
+            const btn = activeCard.querySelector('.btn');
+            if (btn && !btn.disabled) {
+                btn.click();
+            }
+        }
+    });
     </script>
 </body>
 </html>
