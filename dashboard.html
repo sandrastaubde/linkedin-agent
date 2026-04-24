@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LinkedIn Agent Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui; padding: 10px; background: #f5f5f5; }
+        .container { max-width: 100%; }
+        header { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        h1 { color: #0a66c2; font-size: 1.5em; }
+        .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+        .stat { background: white; padding: 15px; border-radius: 8px; text-align: center; }
+        .stat-number { font-size: 2em; font-weight: 700; color: #0a66c2; }
+        button { background: #0a66c2; color: white; padding: 12px 20px; border: none; border-radius: 6px; font-size: 1em; cursor: pointer; width: 100%; margin: 10px 0; }
+        .proposal { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .proposal-text { margin: 15px 0; line-height: 1.5; white-space: pre-wrap; }
+        .hashtags { color: #0a66c2; margin: 10px 0; font-size: 0.9em; }
+        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .btn-approve { background: #0a66c2; }
+        .btn-reject { background: #ddd; color: #333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 LinkedIn Agent</h1>
+            <p>Hallo {{ profile.name }}!</p>
+        </header>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number">{{ stats.total }}</div>
+                <div>Total</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">{{ stats.approved }}</div>
+                <div>Approved</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">{{ stats.rejected }}</div>
+                <div>Rejected</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">{{ stats.approval_rate }}%</div>
+                <div>Rate</div>
+            </div>
+        </div>
+        
+        <button onclick="generate()">✨ Neue Vorschläge generieren</button>
+        
+        {% for proposal in proposals %}
+        <div class="proposal">
+            <strong>{{ proposal.topic }}</strong> • {{ proposal.format }}
+            <div class="proposal-text">{{ proposal.post_text }}</div>
+            <div class="hashtags">{{ proposal.hashtags | join(' ') }}</div>
+            <div class="actions">
+                <button class="btn-approve" onclick="approve('{{ proposal.id }}')">✅ Approve</button>
+                <button class="btn-reject" onclick="reject('{{ proposal.id }}')">❌ Reject</button>
+            </div>
+        </div>
+        {% endfor %}
+        
+        {% if not proposals %}
+        <div style="text-align: center; padding: 40px; color: #666;">
+            <p>Keine Vorschläge vorhanden</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Klicken Sie "Neue Vorschläge generieren"</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <script>
+    async function generate() {
+        if (!confirm('Agent startet Research + Content Generation. Dauert 30-60 Sek. OK?')) return;
+        const btn = event.target;
+        btn.disabled = true;
+        btn.textContent = '⏳ Agent arbeitet...';
+        
+        try {
+            const res = await fetch('/generate', {method: 'POST'});
+            const data = await res.json();
+            if (data.success) {
+                alert('✅ ' + data.message);
+                location.reload();
+            } else {
+                alert('❌ ' + data.error);
+                btn.disabled = false;
+                btn.textContent = '✨ Neue Vorschläge generieren';
+            }
+        } catch (err) {
+            alert('❌ ' + err.message);
+            btn.disabled = false;
+            btn.textContent = '✨ Neue Vorschläge generieren';
+        }
+    }
+    
+    async function approve(id) {
+        const res = await fetch(`/approve/${id}`, {method: 'POST'});
+        if ((await res.json()).success) {
+            alert('✅ Approved!');
+            location.reload();
+        }
+    }
+    
+    async function reject(id) {
+        const res = await fetch(`/reject/${id}`, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({reason: ''})});
+        if ((await res.json()).success) {
+            alert('❌ Rejected!');
+            location.reload();
+        }
+    }
+    </script>
+</body>
+</html>

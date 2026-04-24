@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LinkedIn Agent - Setup</title>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: system-ui; max-width: 700px; margin: 50px auto; padding: 20px; }
+        h1 { color: #0a66c2; }
+        .form-group { margin: 20px 0; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; }
+        input, textarea { width: 100%; padding: 10px; font-size: 1em; border: 2px solid #ddd; border-radius: 6px; }
+        textarea { min-height: 150px; font-family: monospace; }
+        button { background: #0a66c2; color: white; padding: 15px 30px; border: none; border-radius: 6px; font-size: 1.1em; cursor: pointer; }
+        button:hover { background: #004182; }
+        .helper { font-size: 0.9em; color: #666; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🤖 LinkedIn Agent Setup</h1>
+    <p>Füllen Sie diese Daten aus, dann lernt der Agent Ihren Stil.</p>
+    
+    <form id="form" onsubmit="return handleSubmit(event)">
+        <div class="form-group">
+            <label>Ihr Name *</label>
+            <input name="name" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Ihre Rolle *</label>
+            <input name="role" required placeholder="z.B. Social Media Agentur Gründerin">
+        </div>
+        
+        <div class="form-group">
+            <label>Branche *</label>
+            <input name="industry" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Zielgruppe *</label>
+            <textarea name="target_audience" required></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label>Positionierung *</label>
+            <textarea name="positioning" required></textarea>
+        </div>
+        
+        <h2>Ihre 3 Hauptthemen (LinkedIn Max)</h2>
+        
+        <div class="form-group">
+            <label>Thema 1 *</label>
+            <input name="topic_1" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Thema 2 *</label>
+            <input name="topic_2" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Thema 3 *</label>
+            <input name="topic_3" required>
+        </div>
+        
+        <h2>Schreibproben (min. 3 Posts)</h2>
+        <div class="form-group">
+            <textarea name="writing_samples" placeholder="Post 1 hier
+
+Post 2 hier
+
+Post 3 hier
+
+(Trennen Sie Posts durch Leerzeilen)" style="min-height: 300px;"></textarea>
+            <div class="helper">Kopieren Sie 5-10 Ihrer besten LinkedIn Posts hier rein</div>
+        </div>
+        
+        <button type="submit">🚀 Agent starten!</button>
+    </form>
+    
+    <script>
+    async function handleSubmit(e) {
+        e.preventDefault();
+        const btn = e.target.querySelector('button');
+        btn.disabled = true;
+        btn.textContent = '⏳ Wird eingerichtet...';
+        
+        const formData = new FormData(e.target);
+        
+        try {
+            const res = await fetch('/onboarding/submit', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await res.json();
+            
+            if (data.success) {
+                alert('✅ Setup erfolgreich!');
+                window.location.href = data.redirect;
+            } else {
+                alert('❌ Fehler: ' + data.error);
+                btn.disabled = false;
+                btn.textContent = '🚀 Agent starten!';
+            }
+        } catch (err) {
+            alert('❌ Fehler: ' + err.message);
+            btn.disabled = false;
+            btn.textContent = '🚀 Agent starten!';
+        }
+    }
+    </script>
+</body>
+</html>
